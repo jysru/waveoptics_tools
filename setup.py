@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="waveoptics-tools",
+    name="waveoptics",
     version="0.1",
     author="Jysru",
     author_email="jysru@pm.me",

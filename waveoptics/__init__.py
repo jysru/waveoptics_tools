@@ -1,7 +1,7 @@
 from . import beams
 from . import datasets
 from . import devices
-from . import images
+from . import tensors
 from . import metrics
 from . import propag
 

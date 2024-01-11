@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from _utils import reduce_2d, make_bellshaped_plane_2d
+from ._utils import reduce_2d, make_bellshaped_plane_2d
 
 _nan_file: str = 'dm_nan_mask_34x34.npy'
 

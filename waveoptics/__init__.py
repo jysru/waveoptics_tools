@@ -1,5 +1,6 @@
 from . import beams
 from . import devices
+from . import images
 from . import metrics
 from . import propag
 

@@ -12,12 +12,15 @@ def complex_colormap(points: int = 100, hue_start: int = 0):
 
 
 def complex_imshow(complex_array: np.ndarray,
+                   rmin: float = None,
+                   rmax: float = None,
+                   hue_start: int = 0,
                    colorbar: bool = True,
                    figsize: tuple[int,int] = (15,5),
                    ):
     fig = plt.figure(figsize=figsize)
     ax = plt.gca()
-    ax.imshow(complex_to_hsv(complex_array))
+    ax.imshow(complex_to_hsv(complex_array, rmin, rmax, hue_start))
 
     if colorbar:
         cbar_img = complex_colormap()

@@ -17,7 +17,7 @@ def load_matfile(filepath: str, keys: list[str] = None)-> dict:
         loaded_data = scipy.io.loadmat(filepath)
     except NotImplementedError:
         loaded_data = mat73.loadmat(filepath)
-    loaded_data = _keep_keys(loaded_data.copy, keys)
+    loaded_data = _keep_keys(loaded_data.copy(), keys)
     return loaded_data
 
 

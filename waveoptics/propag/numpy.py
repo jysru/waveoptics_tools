@@ -1,5 +1,49 @@
 import numpy as np
 
+def fourier_window_size(
+        cam_nf_px: float = 5.04e-6,
+        cam_ff_px: float = None,
+        focal_length: float = 60e-3,
+        bin_nf: int = 1,
+        bin_ff: int = 1,
+        wavelength: int = 1064e-9,
+        enforce_even_size: bool = True,
+        ) -> int:
+    """
+    Compute the window size to ensure the proper scaling of the Fourier transform
+
+    Parameters
+    ----------
+    cam_nf_px : float
+        Near field camera sensor pixel size (default = 5.04µm, other common = 3.45µm)
+    cam_ff_px : float
+        Far field camera sensor pixel size (default = cam_nf_px)
+    focal_length: float
+        Lens focal length used to obtain the experimental far field (default = 60mm)
+    bin_nf : int
+        Near field binning factor (default = 1, no binning)
+    bin_ff : int
+        Far field binning factor (default = 1, no binning)
+    wavelength: float
+        Illumination wavelength (default = 1064nm)
+    enforce_even_size: bool
+        If true, the returned size will be even (default = True)
+    """
+    # Coerce far field camera pixel size to the near field one if None
+    cam_ff_px = cam_nf_px if cam_ff_px is None else cam_ff_px
+
+    # Compute the optimal size
+    numer = wavelength * focal_length
+    denom = cam_nf_px * bin_nf * cam_ff_px * bin_ff
+    size = int(numer / denom)
+
+    # Enforce even size if applicable
+    if enforce_even_size:
+        if size % 2 == 1:
+            size += 1
+    return size
+
+
 def fft_1d(field: np.ndarray, normalize: bool = True) -> np.ndarray:
     ft = np.fft.fftshift(np.fft.fft(np.fft.fftshift(field)))
     return ft / np.sqrt(ft.size) if normalize else ft

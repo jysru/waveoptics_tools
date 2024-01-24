@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 from .utils import complex_to_hsv
 
 
@@ -35,3 +36,53 @@ def complex_imshow(complex_array: np.ndarray,
         cbar_ax.yaxis.set_ticks_position('right')
 
     return fig, ax
+
+
+def animate_images(speckles: np.ndarray, savepath: str, figsize: tuple[float, float]) -> None:
+    frames = speckles.shape[0]
+    size = speckles.shape[1:]
+
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.plot([0, 1], [0, 1], label='Full Figure Axes', ls='none')
+    ax.axis('off')
+
+    # fig.set_facecolor('black')
+    img = plt.imshow(np.zeros(shape=size), cmap='gray')
+    img.set_clim(vmin=0, vmax=1)
+    # plt.axis('off')
+
+    def animate(frame):
+        speckle = speckles[frame, ...]
+        speckle /= np.max(np.abs(speckle))
+        img.set_data(speckle)
+
+    anim_created = animation.FuncAnimation(fig, animate, frames=frames, interval=500/frames, repeat=True)
+    anim_created.save(savepath,)
+    plt.close()
+
+
+def animate_fields(speckles: np.ndarray, savepath: str, figsize: tuple[float, float]) -> None:
+    frames = speckles.shape[0]
+    size = speckles.shape[1:]
+
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.plot([0, 1], [0, 1], label='Full Figure Axes', ls='none')
+    ax.axis('off')
+
+    fig.set_facecolor('black')
+    img = plt.imshow(np.zeros(shape=size), cmap='gray')
+    img.set_clim(vmin=0, vmax=1)
+    # plt.axis('off')
+
+    def animate(frame):
+        speckle = speckles[frame, ...]
+        speckle /= np.max(np.abs(speckle))
+        speckle_img = complex_to_hsv(speckle)
+        img.set_data(speckle_img)
+
+    anim_created = animation.FuncAnimation(fig, animate, frames=frames, interval=500/frames, repeat=True)
+    anim_created.save(savepath,)
+    plt.close()
+

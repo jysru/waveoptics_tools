@@ -37,3 +37,21 @@ def quality(x: tf.Tensor, y: tf.Tensor, squared: bool = False, inversed: bool = 
     return 1 - q if inversed else q
 
 
+def energy_in_target(y, target, inversed: bool = False):
+    p = tf.reduce_sum(tf.square(tf.abs(y * target))) /tf.reduce_sum(tf.square(tf.abs(y)))
+    return 1 - p if inversed else p
+
+
+def power_overlap_integral(y, target, inversed: bool = False):
+    numer = tf.square(tf.abs(tf.reduce_sum(y * tf.math.conj(target))))
+    denom = tf.reduce_sum(tf.square(tf.abs(y))) * tf.reduce_sum(tf.square(tf.abs(target)))
+    over = numer / denom
+    return 1 - over if inversed else over
+
+
+def power_overlap_integral_moduli(y, target, inversed: bool = False):
+    numer = tf.square(tf.abs(tf.reduce_sum(tf.abs(y) * tf.abs(target))))
+    denom = tf.reduce_sum(tf.square(tf.abs(y))) * tf.reduce_sum(tf.square(tf.abs(target)))
+    over = numer / denom
+    return 1 - over if inversed else over
+

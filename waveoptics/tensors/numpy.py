@@ -1,4 +1,8 @@
+import warnings
 import numpy as np
+from scipy.interpolate import interp2d
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 def crop_2d(feature_map: np.ndarray, new_shape: tuple[int]) -> np.ndarray:
@@ -87,6 +91,41 @@ def max_pooling_2d(feature_map: np.ndarray, kernel: tuple[int] = (2, 2)) -> np.n
 def avg_pooling_2d(feature_map: np.ndarray, kernel: tuple[int] = (2, 2)) -> np.ndarray:
     return pooling_2d(feature_map, kernel, func=np.mean)
 
+
+def subsample_complex(feature_map: np.ndarray, kernel: tuple[int] = (2, 2)) -> np.ndarray:
+    return (
+        avg_pooling_2d(np.real(feature_map), kernel=kernel)
+        + 1j * avg_pooling_2d(np.imag(feature_map), kernel=kernel)
+    )
+
+
+def interpolate(image: np.ndarray, scale: float, kind = 'linear') -> np.ndarray:
+    height, width = image.shape
+
+    # Create a grid of coordinates for the original image
+    x = np.arange(0, width)
+    y = np.arange(0, height)
+
+    # Create interpolation functions for each channel
+    interpolators = interp2d(x, y, image, kind=kind, bounds_error=False, fill_value=0)
+
+    # Calculate the new dimensions
+    new_height = int(height * scale)
+    new_width = int(width * scale)
+
+    # Generate a new grid of coordinates for the interpolated image
+    new_x = np.linspace(0, width - 1, new_width)
+    new_y = np.linspace(0, height - 1, new_height)
+
+    return interpolators(new_x, new_y)
+
+
+def interpolate_complex(field: np.ndarray, scale: float, kind: str = 'linear') -> np.ndarray:
+    return (
+        interpolate(np.real(field), scale=scale, kind=kind)
+        + 1j * interpolate(np.imag(field), scale=scale, kind=kind)
+    )
+    
 
 # def autobin_2d_to(feature_map: np.ndarray, new_shape: tuple[int, int]) -> np.ndarray:
 #     pooling_kernel = (

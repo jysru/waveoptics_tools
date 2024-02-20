@@ -35,3 +35,35 @@ def complex_imshow(complex_array: np.ndarray,
         cbar_ax.yaxis.set_ticks_position('right')
 
     return fig, ax
+
+
+def complex_imshow_real_imag(field: np.ndarray, figsize: tuple[int, int] = (15,5), cmap: str = 'bwr', return_handles: bool = False):
+    fig, axs = plt.subplots(1, 2, figsize=figsize)
+    pl0 = axs[0].imshow(np.real(field), cmap=cmap, vmin=-np.max(np.abs(np.real(field))), vmax=+np.max(np.abs(np.real(field))))
+    pl1 = axs[1].imshow(np.imag(field), cmap=cmap, vmin=-np.max(np.abs(np.imag(field))), vmax=+np.max(np.abs(np.imag(field))))
+    plt.colorbar(pl0, ax=axs[0])
+    plt.colorbar(pl1, ax=axs[1])
+    if return_handles:
+        return fig, axs
+
+
+def compare_complex_imshow_real_imag(fields_list: list[np.ndarray], figsize: tuple[int, int] = (15,5), cmap: str = 'bwr', return_handles: bool = False):
+    fig, axs = plt.subplots(2, len(fields_list), figsize=figsize)
+    
+    for i in range(len(fields_list)):
+        field = fields_list[i]
+        re = axs[0, i].imshow(np.real(field), cmap=cmap,
+                               vmin=-np.max(np.abs(np.real(field))),
+                               vmax=+np.max(np.abs(np.real(field))),
+                               )
+        im = axs[1, i].imshow(np.imag(field), cmap=cmap,
+                               vmin=-np.max(np.abs(np.imag(field))),
+                               vmax=+np.max(np.abs(np.imag(field))),
+                               )
+        plt.colorbar(re, ax=axs[0, i])
+        plt.colorbar(im, ax=axs[1, i])
+        axs[0, i].set_title(f"Real field {i}")
+        axs[0, i].set_title(f"Imag field {i}")
+
+    if return_handles:
+        return fig, axs

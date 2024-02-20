@@ -125,3 +125,13 @@ def fft_2d_grids(field: np.ndarray, pixel_size: float) -> tuple[np.ndarray]:
     kx = 2 * np.pi * np.arange(-lim_nx, lim_nx, dnx)
     kx, ky = np.meshgrid(kx, kx)
     return (x, y, kx, ky)
+
+def get_NA_mask(field_size: int, pixel_size: float, wavelength: float = 106e4-9, NA: float = 0.22, coeff: float = 1) -> np.ndarray:
+    field = np.zeros(shape=(field_size, field_size))
+    _, _, kx, ky = fft_2d_grids(field, pixel_size)
+    k_r = np.sqrt(np.square(kx) + np.square(ky))
+    k_NA = coeff * 2 * np.pi * np.arcsin(NA) / wavelength
+
+    mask = np.zeros_like(kx)
+    mask[k_r <= k_NA] = 1
+    return mask

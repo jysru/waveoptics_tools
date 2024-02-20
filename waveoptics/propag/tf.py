@@ -59,6 +59,20 @@ def frt_2d(field: np.ndarray,
         propagator = frt_2d_propagator(field, dz, wavelength, pixel_size)
     return ifft_2d(fft_2d(field) * tf.cast(tf.complex(tf.cos(propagator), tf.sin(propagator)), tf.complex64))
 
+def frt_2d_fourier_mask(field: np.ndarray,
+           propagator: np.ndarray = None,
+           dz: float = 0.0,
+           wavelength: float = 1064e-9,
+           pixel_size: float = 5.04e-6,
+           mask: np.ndarray = None,
+           ) -> np.ndarray:
+    if propagator is None:
+        propagator = frt_2d_propagator(field, dz, wavelength, pixel_size)
+    if mask is None:
+        return ifft_2d(fft_2d(field) * tf.cast(tf.complex(tf.cos(propagator), tf.sin(propagator)), tf.complex64))
+    else:
+        return ifft_2d(fft_2d(field) * tf.cast(tf.complex(tf.cos(propagator), tf.sin(propagator)), tf.complex64), * tf.cast(mask, tf.complex64))
+
 def frt_1d_propagator(field: np.ndarray,
                       dz: float = 0.0,
                       wavelength: float = 1064e-9,

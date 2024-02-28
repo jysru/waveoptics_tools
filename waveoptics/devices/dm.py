@@ -92,3 +92,37 @@ def reconstruct_34x34(phases: np.ndarray, weights: dict) -> np.ndarray:
     phi[_nan_mask] = np.nan
 
     return phi
+
+
+
+def partition_to_34x34(partition: np.ndarray) -> np.ndarray:
+    desired_field_size = 34
+    partition = np.squeeze(partition)
+        
+    if partition.ndim > 2:
+        raise IndexError(f"Partition dimension > 2!")
+    elif partition.ndim < 2:
+        raise IndexError(f"Partition dimension < 2!")
+    else:
+        n = np.sqrt(partition.size)
+        if np.mod(n, 1) != 0:
+            raise NotImplementedError(f"Partition is not square !")
+        
+    if n==8 or n==16:
+        repeat_amount = np.floor(desired_field_size / n)
+    else:
+        repeat_amount = np.ceil(desired_field_size / n)
+
+    partition = np.repeat(np.repeat(partition, repeat_amount, axis=0), repeat_amount, axis=1)
+    crop_amount = int(((repeat_amount * n) - desired_field_size) // 2)
+    if crop_amount != 0:
+        if crop_amount > 0:
+            partition = partition[crop_amount:-crop_amount, crop_amount:-crop_amount]
+        elif crop_amount < 0:
+            partition = np.hstack([np.repeat(partition[:, 0].reshape(-1, 1), np.abs(crop_amount), axis=1), partition])
+            partition = np.hstack([partition, np.repeat(partition[:, -1].reshape(-1, 1), np.abs(crop_amount), axis=1)])
+            partition = np.vstack([np.repeat(partition[0, :].reshape(1, -1), np.abs(crop_amount), axis=0), partition])
+            partition = np.vstack([partition, np.repeat(partition[-1, :].reshape(1, -1), np.abs(crop_amount), axis=0)])
+
+    partition[_nan_mask] = np.nan
+    return partition

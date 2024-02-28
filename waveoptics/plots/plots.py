@@ -4,6 +4,14 @@ import matplotlib.animation as animation
 from .utils import complex_to_hsv
 
 
+def plot_singular_values(s: np.ndarray) -> None:
+    plt.grid('on', ls=':')
+    plt.plot(s / np.max(s))
+    plt.yscale('log')
+    plt.ylabel('Normalized singular values')
+    plt.xlabel('Singular value index')
+    
+
 def complex_colormap(points: int = 100, hue_start: int = 0):
     mod = np.arange(0, points) / points
     phi = np.arange(0, points) / points * 2 * np.pi

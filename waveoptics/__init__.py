@@ -6,5 +6,6 @@ from . import tensors
 from . import metrics
 from . import plots
 from . import propag
+from . import utils
 
 __version__ = "0.1.1"

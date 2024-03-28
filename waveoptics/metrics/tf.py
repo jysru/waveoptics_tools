@@ -55,3 +55,12 @@ def power_overlap_integral_moduli(y, target, inversed: bool = False):
     over = numer / denom
     return 1 - over if inversed else over
 
+
+def energy_ratio_in_target_trsh(y, target, trsh: float = 0.1, inversed: bool = False):
+    norm_target = tf.abs(target) / tf.reduce_max(tf.abs(target))
+    norm_field = tf.abs(y) / tf.reduce_max(tf.abs(y))
+    total_energy = tf.reduce_sum(tf.square(tf.abs(norm_field)))
+    above_trsh = tf.math.greater_equal(tf.square(tf.abs(norm_target)), trsh)
+    energy_in_trsh = tf.reduce_sum(tf.square(tf.abs(tf.where(above_trsh, norm_field, 0))))
+    ratio = energy_in_trsh / total_energy
+    return 1 - ratio if inversed else ratio

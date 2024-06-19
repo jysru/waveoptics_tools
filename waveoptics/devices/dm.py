@@ -96,8 +96,8 @@ def reconstruct_34x34(phases: np.ndarray, weights: dict) -> np.ndarray:
 
 
 
-def partition_to_34x34(partition: np.ndarray) -> np.ndarray:
-    desired_field_size = 34
+def partition_to_34x34(partition: np.ndarray, field_size: int = 34) -> np.ndarray:
+    desired_field_size = field_size
     partition = np.squeeze(partition)
         
     if partition.ndim > 2:
@@ -127,6 +127,19 @@ def partition_to_34x34(partition: np.ndarray) -> np.ndarray:
 
     partition[_nan_mask] = np.nan
     return partition
+
+
+def batch_partition_to_34x34(partition: np.ndarray, field_size: int = 34) -> np.ndarray:
+    """Assumes partition dimensions are the last two in the case of batched data, thus, batch dimension is the first one"""
+    desired_field_size = field_size
+    partition = np.squeeze(partition)
+    batch_size = partition.shape[0]
+    partitionned = np.nan * np.zeros(shape=(batch_size, field_size, field_size))
+
+    for i in range(batch_size):
+        partitionned[i, ...] = partition_to_34x34(partition[i, ...], field_size=desired_field_size)
+
+    return partitionned
 
 
 def tf_partition_to_34x34(partition: tf.Tensor) -> np.ndarray:

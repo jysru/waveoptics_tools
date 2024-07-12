@@ -63,7 +63,7 @@ def reduce_2d(domains, reduce_grid=None, agg_func=None):
         return reduced_domains
     
 
-def tf_quantize(x, n_bits: int, dyn_range: tuple[float] = None, levels: np.array = None):
+def tf_quantize(x, n_bits: int = 16, dyn_range: tuple[float] = None, levels: np.array = None):
     if levels is None:
         dyn_range = tf.convert_to_tensor([tf.reduce_min(x), tf.reduce_max(x)]) if dyn_range is None else tf.convert_to_tensor(dyn_range)
         levels = tf.linspace(dyn_range[0], dyn_range[1], tf.math.pow(2, n_bits))

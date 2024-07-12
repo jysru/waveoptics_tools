@@ -1,4 +1,5 @@
 import numpy as np
+import tensorflow as tf
 import warnings
 
 def make_bellshaped_plane_2d(domain, width=4.5e-3, centers=(5e-3,5e-3)):
@@ -60,4 +61,18 @@ def reduce_2d(domains, reduce_grid=None, agg_func=None):
                 reduce_areas = domains[:, h_grid[hi]:h_grid[hi + 1], w_grid[wi]:w_grid[wi + 1]]
                 reduced_domains[:, hi, wi] = agg_func(reduce_areas, axis=(-2, -1))
         return reduced_domains
+    
+
+def tf_quantize(x, n_bits: int, dyn_range: tuple[float] = None, levels: np.array = None):
+    if levels is None:
+        dyn_range = tf.convert_to_tensor([tf.reduce_min(x), tf.reduce_max(x)]) if dyn_range is None else tf.convert_to_tensor(dyn_range)
+        levels = tf.linspace(dyn_range[0], dyn_range[1], tf.math.pow(2, n_bits))
+    
+    # Compute the absolute difference between each element of x and each quantization level
+    diff = tf.abs(tf.expand_dims(x, axis=-1) - levels)
+    # Find the index of the minimum difference
+    indices = tf.argmin(diff, axis=-1)
+    # Gather the quantization levels based on the indices
+    quantized_x = tf.gather(levels, indices)
+    return quantized_x
     

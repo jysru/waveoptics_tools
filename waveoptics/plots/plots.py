@@ -46,6 +46,17 @@ def complex_imshow(complex_array: np.ndarray,
     return fig, ax
 
 
+def simple_complex_imshow(complex_array: np.ndarray,
+                   rmin: float = None,
+                   rmax: float = None,
+                   hue_start: int = 0,
+                   ):
+    ax = plt.gca()
+    plt.imshow(complex_to_hsv(complex_array, rmin, rmax, hue_start))
+
+    return ax
+
+
 def complex_imshow_real_imag(field: np.ndarray, figsize: tuple[int, int] = (15,5), cmap: str = 'bwr', return_handles: bool = False):
     fig, axs = plt.subplots(1, 2, figsize=figsize)
     pl0 = axs[0].imshow(np.real(field), cmap=cmap, vmin=-np.max(np.abs(np.real(field))), vmax=+np.max(np.abs(np.real(field))))

@@ -76,3 +76,15 @@ def tf_quantize(x, n_bits: int = 16, dyn_range: tuple[float] = None, levels: np.
     quantized_x = tf.gather(levels, indices)
     return quantized_x
     
+    
+def slice_elements_by_batch(total_elements: int, slice_size: int = 1000) -> list[slice]:
+    num_splits = int(np.ceil(total_elements / slice_size))
+    last_split_size = int(total_elements - (num_splits - 1) * slice_size)
+    
+    slice_list = []
+    for i in range(num_splits):
+        start_idx = i * slice_size
+        stop_idx = (i + 1) * slice_size if i < num_splits - 1 else i * slice_size + last_split_size
+        slice_list.append(slice(start_idx, stop_idx))
+            
+    return slice_list

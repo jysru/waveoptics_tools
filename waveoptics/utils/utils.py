@@ -121,7 +121,4 @@ def median_nd(tensor, axis):
 
     return median
 
-# Example usage
-tensor_2d = tf.constant([[1.0, 3.0, 2.0], [7.0, 5.0, 6.0]])
-median_value = median_nd(tensor_2d, axis=1)
-print("Median of 2D tensor along axis 1:", median_value.numpy())
+ 

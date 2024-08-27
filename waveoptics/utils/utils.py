@@ -88,3 +88,40 @@ def slice_elements_by_batch(total_elements: int, slice_size: int = 1000) -> list
         slice_list.append(slice(start_idx, stop_idx))
             
     return slice_list
+
+
+def median_nd(tensor, axis):
+    # Sort the tensor along the specified axis
+    sorted_tensor = tf.sort(tensor, axis=axis)
+
+    # Get the length of the specified axis
+    length = tf.shape(tensor)[axis]
+
+    # Check if the length of the axis is odd
+    is_odd = tf.equal(length % 2, 1)
+
+    # Calculate the middle index for the specified axis
+    middle_index = length // 2
+
+    # Slice to get the two middle elements
+    def get_median_even():
+        return (tf.gather(sorted_tensor, middle_index - 1, axis=axis) + 
+                tf.gather(sorted_tensor, middle_index, axis=axis)) / 2.0
+
+    # Slice to get the single middle element
+    def get_median_odd():
+        return tf.gather(sorted_tensor, middle_index, axis=axis)
+
+    # Use tf.cond to handle both cases
+    median = tf.cond(
+        is_odd,
+        get_median_odd,
+        get_median_even
+    )
+
+    return median
+
+# Example usage
+tensor_2d = tf.constant([[1.0, 3.0, 2.0], [7.0, 5.0, 6.0]])
+median_value = median_nd(tensor_2d, axis=1)
+print("Median of 2D tensor along axis 1:", median_value.numpy())

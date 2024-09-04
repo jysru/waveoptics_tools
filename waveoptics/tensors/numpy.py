@@ -127,27 +127,20 @@ def interpolate_complex(field: np.ndarray, scale: float, kind: str = 'linear') -
     )
     
 
-# def autobin_2d_to(feature_map: np.ndarray, new_shape: tuple[int, int]) -> np.ndarray:
-#     pooling_kernel = (
-#         int(feature_map.shape[-2] // new_shape[0]),
-#         int(feature_map.shape[-1] // new_shape[1]),
-#     )
-#     crop_amounts = (
-#         int((feature_map.shape[-2] - (pooling_kernel[0] * new_shape[0])) // 2),
-#         int((feature_map.shape[-1] - (pooling_kernel[1] * new_shape[1])) // 2),
-#     )
-#     cropped_shape = (
-#         feature_map.shape[-2] - 2 * crop_amounts[0],
-#         feature_map.shape[-1] - 2 * crop_amounts[1],
-#     )
+def is_clipping(tensor: np.ndarray, lower_boundaries: np.ndarray, upper_boundaries: np.ndarray) -> bool:
+    """Checks if a tensor is clipping its boundaries
 
-#     print(f"crops={crop_amounts}")
-#     print(f"pool={pooling_kernel}")
-#     print(f"cropped shape={cropped_shape}")
+    Args:
+        tensor (np.ndarray): Tensor to be tested
+        lower_boundaries (np.ndarray): Tensor lower boundaries, must have the same dimension as tensor, or be a scalar
+        upper_boundaries (np.ndarray): Tensor lower boundaries, must have the same dimension as tensor, or be a scalar
 
-#     print(feature_map.shape)
-#     feature_map = crop_2d(feature_map, cropped_shape)
-#     print(feature_map.shape)
-#     feature_map = avg_pooling_2d(feature_map, kernel=pooling_kernel)
-#     print(feature_map.shape)
-#     return feature_map
+    Returns:
+        bool: Whether the whole tensor is clipping (contains out of boundaries elements) or not
+    """
+    
+    if np.any(tensor > upper_boundaries) or np.any(tensor < lower_boundaries):
+        return True
+    else:
+        False
+    

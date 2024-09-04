@@ -142,5 +142,5 @@ def is_clipping(tensor: np.ndarray, lower_boundaries: np.ndarray, upper_boundari
     if np.any(tensor > upper_boundaries) or np.any(tensor < lower_boundaries):
         return True
     else:
-        False
+        return False
     

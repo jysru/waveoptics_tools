@@ -84,11 +84,11 @@ class SLMPistonSquare:
         if phase_map.shape[0] != self.roi_size: 
             phase_map = crop_2d(phase_map, new_shape=(self.roi_size, self.roi_size))
 
-        map = np.zeros((self._screen_height, self._screen_width))
-        map[1::2, ::2] = 0
-        map[::2, 1::2] = 0
+        map = np.zeros((self._screen_height, self._screen_width), dtype=np.complex64)
+        # map[1::2, ::2] = 0
+        # map[::2, 1::2] = 0
 
-        map[0:self.roi_size, 0:self.roi_size] = phase_map
+        map[0:self.roi_size, 0:self.roi_size] = np.exp(1j * phase_map)
         map = np.roll(map, shift=self.roi_centers_xy[0] - self.roi_size // 2, axis=0)
         map = np.roll(map, shift=self.roi_centers_xy[1] - self.roi_size // 2, axis=1)
 

@@ -1,7 +1,15 @@
 import os
 import numpy as np
 import tensorflow as tf
+from waveoptics.tensors.numpy import crop_2d
 from ._utils import reduce_2d, make_bellshaped_plane_2d
+
+
+_DEFAULT_SCREEN_WIDTH = 1680
+_DEFAULT_SCREEN_HEIGHT = 1050
+_DEFAULT_SCREEN_WIDTH = 1920
+_DEFAULT_SCREEN_HEIGHT = 1080
+
 
 
 def tf_partition_to_nxn(partition: tf.Tensor, desired_field_size: int = 48) -> np.ndarray:
@@ -32,3 +40,56 @@ def tf_partition_to_nxn(partition: tf.Tensor, desired_field_size: int = 48) -> n
             partition = tf.concat([tf.repeat(tf.reshape(partition[0, :], (1, -1)), tf.math.abs(crop_amount), axis=0), partition], axis=0)
             partition = tf.concat([partition, tf.repeat(tf.reshape(partition[-1, :], (1, -1)), tf.math.abs(crop_amount), axis=0)], axis=0)
     return partition
+
+
+
+
+class SLMPistonSquare:
+    _screen_width: int = _DEFAULT_SCREEN_WIDTH
+    _screen_height: int = _DEFAULT_SCREEN_HEIGHT
+
+    def __init__(self,
+                 n_act_1d: int = 8,
+                 width: int = None,
+                 height: int = None,
+                 roi_size: int = 192,
+                 roi_shifts: tuple[int] = (541, 624),
+                 ) -> None:
+        self.n_act_1d = n_act_1d
+        self.n_act_2d = self.n_act_1d ** 2
+        self.size_act = None
+        self.roi_size = roi_size
+        self.roi_centers_xy = roi_shifts
+        self._screen_width = width if width is not None else SLMPistonSquare._screen_width
+        self._screen_height = height if height is not None else SLMPistonSquare._screen_height
+        self.actuator_phases = None
+        self.phase_matrix = None
+
+    def generate_phases(self, n: int) -> np.ndarray:
+        phi = 2 * np.pi * np.random.rand(n, n)
+        self.n_act_1d = n
+        self.n_act_2d = n ** 2
+        self.image_from_phases(phi)
+
+    def image_from_phases(self, phases_array):
+        self.actuator_phases = phases_array
+        n = np.round(np.sqrt(phases_array.size)).astype(np.int32)
+        
+        ideal_actu_size = int(np.ceil(self.roi_size / n))
+        self.size_act = ideal_actu_size
+
+        phase_map = np.repeat(phases_array, repeats=ideal_actu_size, axis=0)
+        phase_map = np.repeat(phase_map, repeats=ideal_actu_size, axis=1)
+
+        if phase_map.shape[0] != self.roi_size: 
+            phase_map = crop_2d(phase_map, new_shape=(self.roi_size, self.roi_size))
+
+        map = np.zeros((self._screen_height, self._screen_width))
+        map[1::2, ::2] = 0
+        map[::2, 1::2] = 0
+
+        map[0:self.roi_size, 0:self.roi_size] = phase_map
+        map = np.roll(map, shift=self.roi_centers_xy[0] - self.roi_size // 2, axis=0)
+        map = np.roll(map, shift=self.roi_centers_xy[1] - self.roi_size // 2, axis=1)
+
+        self.phase_matrix = map

@@ -93,3 +93,30 @@ class SLMPistonSquare:
         map = np.roll(map, shift=self.roi_centers_xy[1] - self.roi_size // 2, axis=1)
 
         self.phase_matrix = map
+
+    def generate_field(self, n: int) -> np.ndarray:
+        phi = 2 * np.pi * np.random.rand(n, n)
+        self.n_act_1d = n
+        self.n_act_2d = n ** 2
+        self.field_from_phases(phi)
+
+    def field_from_phases(self, phases_array):
+        self.actuator_phases = phases_array
+        n = np.round(np.sqrt(phases_array.size)).astype(np.int32)
+        
+        ideal_actu_size = int(np.ceil(self.roi_size / n))
+        self.size_act = ideal_actu_size
+
+        phase_map = np.repeat(phases_array, repeats=ideal_actu_size, axis=0)
+        phase_map = np.repeat(phase_map, repeats=ideal_actu_size, axis=1)
+
+        if phase_map.shape[0] != self.roi_size: 
+            phase_map = crop_2d(phase_map, new_shape=(self.roi_size, self.roi_size))
+
+        map = np.zeros((self._screen_height, self._screen_width), dtype=np.complex64)
+
+        map[0:self.roi_size, 0:self.roi_size] = np.exp(1j * phase_map)
+        map = np.roll(map, shift=self.roi_centers_xy[0] - self.roi_size // 2, axis=0)
+        map = np.roll(map, shift=self.roi_centers_xy[1] - self.roi_size // 2, axis=1)
+
+        self.field_matrix = map

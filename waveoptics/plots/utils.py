@@ -2,7 +2,10 @@ import numpy as np
 from matplotlib.colors import hsv_to_rgb
 
 
-def complex_to_hsv(z: np.ndarray, rmin: float = None, rmax: float = None, hue_start: int = 0):
+def complex_to_hsv(z: np.ndarray, rmin: float = None, rmax: float = None, hue_start: int = 0, power=1):
+    if power != 1:
+        z = np.power(np.abs(z), power) * np.exp(1j * np.angle(z))
+
     # Check if arguments are not None, else assign default values
     rmin = rmin if rmin is not None else 0
     rmax = rmax if rmax is not None else np.max(np.abs(z))
@@ -18,7 +21,12 @@ def complex_to_hsv(z: np.ndarray, rmin: float = None, rmax: float = None, hue_st
     # Build HSV arrays (HSV are values in range [0,1])
     h = (ph % 360) / 360
     s = 0.85 * np.ones_like(h)
+    # s = 1.00 * np.ones_like(h)
     v = (amp - rmin) / (rmax - rmin)
+    # v = 2 / np.pi * np.arctan(amp)
+    
+    # a = 0.5
+    # v = 1 - np.power(a, v)
 
     return hsv_to_rgb(np.dstack((h, s, v)))
 
